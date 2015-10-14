@@ -141,8 +141,10 @@ void reliablyReceive(unsigned short int myUDPport, char* destinationFile) {
     int numbytes;
     int bytesRead;
     int DUPACKctr = 0;
-    //try to open file
-    ofstream myFile(destinationFile);
+    //try to open file 
+    cout<< "Its reaching here 1.\n";
+    ofstream myFile(destinationFile); 
+    cout<< "its reaching here 2.\n";
     if (!myFile.is_open()) {
         cout << "reliablyReceive: Unable to open file.\n";
         return;
@@ -161,25 +163,30 @@ void reliablyReceive(unsigned short int myUDPport, char* destinationFile) {
     char buf[MAX_DATA_SIZE];
     unsigned long long int last_SEQ = 0;
     bool running = true; // set to false when END packet received
-    while (running) {
-        if ((bytesRead = recvfrom(sockfd, buf, MAX_DATA_SIZE, 0,
+    while (running) { 
+	cout<< "Its reaching here 3. \n";
+        if ((bytesRead = recvfrom(sockfd,buf, MAX_DATA_SIZE, 0,
             (struct sockaddr *)&their_addr, &addr_len)) == -1) {
-            perror("recvfrom");
+            perror("recvfrom"); 
+	   cout<< "Somethings going wrong\n";
             exit(1);
         }
-        //cout << "Packet size: " << bytesRead << "\n";
-
-        if (memcmp(buf,END,4) == 0) {
-            cout << "Got a termination packet!\n";
-            running = false;
-        }
-
+       cout << "Packet size:  \n";
         unsigned long long int SEQ_num;
         sscanf(buf, "%llu", &SEQ_num);
         //printf("SEQ_num is %llu and last_SEQ is %llu\n", SEQ_num, last_SEQ);
         char ACK_msg[MAX_DATA_SIZE];
         unsigned long long int nextSeq = last_SEQ + 1;
         char * msg = stripSeqNumber(buf, bytesRead);
+            myFile.write(msg, bytesRead);
+		            
+            
+
+        if (memcmp(buf,END,4) == 0) {
+            cout << "Got a termination packet!\n";
+            running = false;
+        }
+
 
 
         if (SEQ_num > nextSeq) {
@@ -206,8 +213,11 @@ void reliablyReceive(unsigned short int myUDPport, char* destinationFile) {
                 perror("sender: sendto");
                 exit(1);
             }
-            last_SEQ++; // change the last_SEQ number
+            last_SEQ++; // change the last_SEQ number 
+	   cout << "Its reaching here 5" << "<--\n";
+	   cout << "Its reaching here 4" << "<--\n";
             myFile.write(msg, bytesRead);
+	   cout << "Its reaching here 4" << "<--\n";
             myFile.flush();
         }
     }
